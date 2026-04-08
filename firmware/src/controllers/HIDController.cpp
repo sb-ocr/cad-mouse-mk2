@@ -13,7 +13,7 @@ const uint8_t kHidReportDescriptor[] PROGMEM = {
     0x85, 0x01,        // REPORT_ID (1)
     0x16, 0xA2, 0xFE,  // LOGICAL_MINIMUM  (-350)
     0x26, 0x5E, 0x01,  // LOGICAL_MAXIMUM  (350)
-    0x09, 0x30,        // USAGE (X)     
+    0x09, 0x30,        // USAGE (X)
     0x09, 0x31,        // USAGE (Y)
     0x09, 0x32,        // USAGE (Z)
     0x09, 0x33,        // USAGE (Rx)
