@@ -1,5 +1,7 @@
 #include "controllers/SensorController.h"
 
+#include <math.h>
+
 #include "Config.h"
 
 using namespace ifx::tlx493d;
@@ -51,7 +53,7 @@ void SensorController::begin() {
   delay(10);
 }
 
-void SensorController::readRaw(float out[9]) {
+bool SensorController::readRaw(float out[9]) {
   double mag1x = 0, mag1y = 0, mag1z = 0, temp1 = 0;
   double mag2x = 0, mag2y = 0, mag2z = 0, temp2 = 0;
   double mag3x = 0, mag3y = 0, mag3z = 0, temp3 = 0;
@@ -70,6 +72,20 @@ void SensorController::readRaw(float out[9]) {
   out[6] = mag3x;
   out[7] = mag3y;
   out[8] = mag3z;
+
+  // Validate: reject frames where any axis reads exactly zero across all
+  // components (likely I2C failure) or exceeds sane sensor range.
+  for (int i = 0; i < 9; i++) {
+    if (fabs(out[i]) > 500.0f) return false;  // Way outside EXTRA_SHORT_RANGE
+  }
+  // Check for dead sensor (all three axes exactly zero)
+  for (int s = 0; s < 3; s++) {
+    int base = s * 3;
+    if (out[base] == 0.0f && out[base + 1] == 0.0f && out[base + 2] == 0.0f) {
+      return false;
+    }
+  }
+  return true;
 }
 
 void SensorController::beginCalibration() {
@@ -95,7 +111,9 @@ void SensorController::updateCalibration() {
   lastCalibrationSampleMs_ = now;
 
   float raw[9] = {};
-  readRaw(raw);
+  if (!readRaw(raw)) {
+    return;  // Skip bad sample, try again next cycle
+  }
 
   for (int i = 0; i < 9; i++) {
     calibrationSum_[i] += raw[i];

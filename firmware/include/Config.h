@@ -27,8 +27,17 @@ const int SIGN_AXIS[6] = {-1, +1, -1, +1, +1, +1};
 const float DEAD_T = 16.0;
 const float DEAD_R = 20.0;
 
-// Smoothing
-const float SMOOTH_TAU_S = 0.08;
+// Kalman filter tuning
+// Process noise: how much we expect the true value to change per step.
+// Higher = more responsive but noisier.
+const float KALMAN_Q = 0.5;
+// Measurement noise: how noisy the sensor readings are.
+// Higher = smoother but more latency.
+const float KALMAN_R = 4.0;
+
+// Sensitivity curve exponent.
+// 1.0 = linear, 3.0 = cubic (fine control at small deflections, fast at large).
+const float SENSITIVITY_EXP = 3.0;
 
 // Final axis output range
 const float AXIS_LIMIT = 350.0;

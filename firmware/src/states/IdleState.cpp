@@ -22,7 +22,9 @@ bool IdleState::handleCalibrationRequest() {
 
 void IdleState::runMotionPipeline(float dt, unsigned long now) {
   float raw[9] = {};
-  sensorController.readRaw(raw);
+  if (!sensorController.readRaw(raw)) {
+    return;  // Skip frame on sensor read failure
+  }
 
   float motion[6] = {};
   motionController.compute(raw, sensorController.baseline(), dt, motion);
